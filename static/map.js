@@ -10,6 +10,12 @@ Stamen_Toner.addTo(map)
 
 var marker = Array();
 var buses_data = Array();
+var route_showed = null;
+var route_object;
+var current_route = "";
+
+
+
 function displayData(){
         $.ajax({
                 url: '/static/data.json',
@@ -38,9 +44,33 @@ function displayData(){
                         iconAnchor: [15,15],
                 });
                 
-                var LamMarker = new L.Marker([buses_data[i]["Lat"], buses_data[i]["Lng"]],{icon: svgIcon}).on('click', function(e) {
-                        alert(`Delayed by ${buses_data[i]["Delay"]} seconds`);
-                    });
+                var LamMarker = new L.Marker([buses_data[i]["Lat"], buses_data[i]["Lng"]],{icon: svgIcon})
+                LamMarker.bindPopup(`Delayed by ${buses_data[i]["Delay"]} seconds`).openPopup()
+                LamMarker.on("click", function(e) {
+                        current_route = null;
+                        if (route_showed != null) {
+                                map.removeLayer(route_object)
+                                route_object = null;      
+                        }
+                        if (route_showed == buses_data[i]['Line']){
+                                route_showed = null;
+                                return
+                        }
+                        $.ajax({
+                                url: `/static/${buses_data[i]['Line']}.json`,
+                                async: false,
+                                dataType: 'json',
+                                success: function (json) {
+                                        current_route = L.geoJson(json)
+                                        }
+                                });
+                        if (current_route == null){
+                                return
+                        }
+                        route_showed = buses_data[i]['Line'];
+                        route_object = current_route.addTo(map);
+                        
+                });
                 marker.push(LamMarker);
                 
                 
