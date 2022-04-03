@@ -47,6 +47,7 @@ function displayData(){
                 var LamMarker = new L.Marker([buses_data[i]["Lat"], buses_data[i]["Lng"]],{icon: svgIcon})
                 LamMarker.bindPopup(`Delayed by ${buses_data[i]["Delay"]} seconds`).openPopup()
                 LamMarker.on("click", function(e) {
+                        //console.log(route_showed, route_object, current_route)
                         current_route = null;
                         if (route_showed != null) {
                                 map.removeLayer(route_object)
@@ -65,6 +66,7 @@ function displayData(){
                                         }
                                 });
                         if (current_route == null){
+                                route_showed = null
                                 return
                         }
                         route_showed = buses_data[i]['Line'];
