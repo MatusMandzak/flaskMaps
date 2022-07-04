@@ -11,11 +11,31 @@ Stamen_Toner.addTo(map)
 var marker = Array();
 var buses_data = Array();
 var route_showed = null;
-var route_object;
+var route_object = null;
 var current_route = "";
 
+L.easyButton('fa-globe', function(btn, map){
+    if (route_object) {
+	map.removeLayer(route_object);
+    	route_object = null;
+	route_showed = null
+    }
+}).addTo(map);
 
-
+function onEachFeature(feature, layer) {
+    if (feature.properties.bus) {
+        layer.bindPopup(feature.properties.name);
+    }
+}
+function busFilter(feature){
+	ans = 0;
+	if (feature.properties.bus) {
+		if (feature.properties.relations) {
+			ans = 1;
+		};
+        };
+	return ans || feature.properties.route;
+}
 function displayData(){
         $.ajax({
                 url: '/static/data.json',
@@ -58,11 +78,11 @@ function displayData(){
                                 return
                         }
                         $.ajax({
-                                url: `/static/${buses_data[i]['Line']}.json`,
+                                url: `/static/${buses_data[i]['Line']}.geojson`,
                                 async: false,
                                 dataType: 'json',
                                 success: function (json) {
-                                        current_route = L.geoJson(json)
+                                        current_route = L.geoJson(json, {filter: busFilter, onEachFeature: onEachFeature})
                                         }
                                 });
                         if (current_route == null){
