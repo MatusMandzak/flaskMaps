@@ -1,12 +1,9 @@
 var map = L.map('map').setView([48.72, 21.25], 13);
-var Stamen_Toner = L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner/{z}/{x}/{y}{r}.{ext}', {
-	attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-	subdomains: 'abcd',
-	minZoom: 0,
-	maxZoom: 20,
-	ext: 'png'
+var OSM_Mapnik = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+	maxZoom: 19,
+	attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 });
-Stamen_Toner.addTo(map)
+OSM_Mapnik.addTo(map)
 
 var marker = Array();
 var buses_data = Array();
@@ -14,27 +11,31 @@ var route_showed = null;
 var route_object = null;
 var current_route = "";
 
-L.easyButton('fa-globe', function(btn, map){
+L.easyButton('fa-ban', function(btn, map){
     if (route_object) {
-	map.removeLayer(route_object);
+        map.removeLayer(route_object);
     	route_object = null;
-	route_showed = null
+        route_showed = null
     }
 }).addTo(map);
 
 function onEachFeature(feature, layer) {
-    if (feature.properties.bus) {
+    if (feature.properties.highway == "bus_stop") {
         layer.bindPopup(feature.properties.name);
-    }
+	    busIcon = L.divIcon({
+            html: '<i class="fa-solid fa-bus-simple"></i>',
+            iconSize: [20, 20],
+            className: 'myBusIcon'
+        });
+        layer.setIcon(busIcon);
+    };
 }
 function busFilter(feature){
-	ans = 0;
-	if (feature.properties.bus) {
-		if (feature.properties.relations) {
-			ans = 1;
-		};
-        };
-	return ans || feature.properties.route;
+	ans = 1;
+	if (feature.properties.highway == "traffic_signals" || feature.properties.highway == "crossing" || feature.properties.highway == "stop" || feature.properties.highway == "motorway_junction" || feature.properties.highway == "give_way" || feature.properties.railway == "tram_level_crossing" || feature.properties.public_transport == "stop_position" || feature.properties.junction == "yes" || feature.properties.traffic_calming == "rumble_strip") {
+        ans = 0;
+    };
+	return ans;
 }
 function displayData(){
         $.ajax({
@@ -65,7 +66,7 @@ function displayData(){
                 });
                 
                 var LamMarker = new L.Marker([buses_data[i]["Lat"], buses_data[i]["Lng"]],{icon: svgIcon})
-                LamMarker.bindPopup(`Delayed by ${buses_data[i]["Delay"]} seconds`).openPopup()
+                LamMarker.bindPopup(`Delayed by ${buses_data[i]["Delay"]} seconds ${buses_data[i]["Dir"]}`).openPopup()
                 LamMarker.on("click", function(e) {
                         //console.log(route_showed, route_object, current_route)
                         current_route = null;
@@ -73,12 +74,12 @@ function displayData(){
                                 map.removeLayer(route_object)
                                 route_object = null;      
                         }
-                        if (route_showed == buses_data[i]['Line']){
+                        if (route_showed == buses_data[i]['Line']+buses_data[i]['Dir']){
                                 route_showed = null;
                                 return
                         }
                         $.ajax({
-                                url: `/static/${buses_data[i]['Line']}.geojson`,
+                                url: `/static/${buses_data[i]['Line']}${buses_data[i]['Dir']}.geojson`,
                                 async: false,
                                 dataType: 'json',
                                 success: function (json) {
@@ -89,7 +90,7 @@ function displayData(){
                                 route_showed = null
                                 return
                         }
-                        route_showed = buses_data[i]['Line'];
+                        route_showed = buses_data[i]['Line']+buses_data[i]['Dir'];
                         route_object = current_route.addTo(map);
                         
                 });
