@@ -9,7 +9,7 @@ Simple python app built on Flask framework, that tracks buses and trams. GPS inf
 
 App is inspired by https://mhdke.sk from NoLimit|DEVELOPERS, check them out on their [Facebook](https://www.facebook.com/101041385188593).
 
-I built this app to learn Flask, JS and primarly [Leafletjs](leafletjs.com).
+I built this app to learn Flask, JS and primarly [Leafletjs](https://leafletjs.com).
 
 #### Proof of concept
 ![](static/DPMK_Tracking.png)
