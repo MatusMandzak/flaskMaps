@@ -1,7 +1,7 @@
-### App isn't fully finished, it may contain bugs
 # DPMK Tracking
+> flask based program to track public transportation on map in KE
 
-Using publicly accessible GPS to track buses and trams in my Košice, Slovakia.
+A python program, that uses publicly accessible GPS data to track buses and trams in my Košice, Slovakia.
 
 ## About
 
@@ -11,5 +11,4 @@ App is inspired by https://mhdke.sk from NoLimit|DEVELOPERS, check them out on t
 
 I built this app to learn Flask, JS and primarly [Leafletjs](https://leafletjs.com).
 
-#### Proof of concept
 ![](static/DPMK_Tracking.png)
