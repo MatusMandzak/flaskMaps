@@ -8,14 +8,20 @@ A python program, that uses publicly accessible GPS data to track buses and tram
 Install the requirements for the application:
 - flask
 - apscheduler
-`pip install flask apscheduler `
+```
+pip install flask apscheduler
+```
 
 ## Usage
 
 To execute the program simply run:
-`flask --app main run`
+```
+flask --app main run
+```
 and visit:
-`localhost:5000`
+```
+localhost:5000
+```
 
 Wait for data to refresh and enjoy looking at realtime data :)
 
