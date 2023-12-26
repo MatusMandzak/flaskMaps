@@ -11,15 +11,8 @@ var route_showed = null;
 var route_object = null;
 var current_route = "";
 
-L.easyButton('fa-ban', function(btn, map){
-    if (route_object) {
-        map.removeLayer(route_object);
-    	route_object = null;
-        route_showed = null
-    }
-}).addTo(map);
 
-function onEachFeature(feature, layer) {
+function createBusIcon(feature, layer) {
     if (feature.properties.highway == "bus_stop") {
         layer.bindPopup(feature.properties.name);
 	    busIcon = L.divIcon({
@@ -30,13 +23,15 @@ function onEachFeature(feature, layer) {
         layer.setIcon(busIcon);
     };
 }
+
 function busFilter(feature){
-	ans = 1;
-	if (feature.properties.highway == "traffic_signals" || feature.properties.highway == "crossing" || feature.properties.highway == "stop" || feature.properties.highway == "motorway_junction" || feature.properties.highway == "give_way" || feature.properties.railway == "tram_level_crossing" || feature.properties.public_transport == "stop_position" || feature.properties.junction == "yes" || feature.properties.traffic_calming == "rumble_strip") {
+    ans = 1;
+    if (feature.properties.highway == "traffic_signals" || feature.properties.highway == "crossing" || feature.properties.highway == "stop" || feature.properties.highway == "motorway_junction" || feature.properties.highway == "give_way" || feature.properties.railway == "tram_level_crossing" || feature.properties.public_transport == "stop_position" || feature.properties.junction == "yes" || feature.properties.traffic_calming == "rumble_strip") {
         ans = 0;
     };
-	return ans;
+    return ans;
 }
+
 function displayData(){
         $.ajax({
                 url: '/static/data.json',
@@ -64,7 +59,6 @@ function displayData(){
                         iconSize: [30,30],
                         iconAnchor: [15,15],
                 });
-                
                 var LamMarker = new L.Marker([buses_data[i]["Lat"], buses_data[i]["Lng"]],{icon: svgIcon})
                 LamMarker.bindPopup(`Delayed by ${buses_data[i]["Delay"]} seconds ${buses_data[i]["Dir"]}`).openPopup()
                 LamMarker.on("click", function(e) {
@@ -83,7 +77,7 @@ function displayData(){
                                 async: false,
                                 dataType: 'json',
                                 success: function (json) {
-                                        current_route = L.geoJson(json, {filter: busFilter, onEachFeature: onEachFeature})
+                                        current_route = L.geoJson(json, {filter: busFilter, onEachFeature: createBusIcon})
                                         }
                                 });
                         if (current_route == null){
@@ -92,11 +86,8 @@ function displayData(){
                         }
                         route_showed = buses_data[i]['Line']+buses_data[i]['Dir'];
                         route_object = current_route.addTo(map);
-                        
                 });
                 marker.push(LamMarker);
-                
-                
                 map.addLayer(marker[i]);
         }
 }
